@@ -139,10 +139,11 @@ class SaleSubscription(models.Model):
 
     def cron_subscription_management(self):
         today = date.today()
-        for subscription in self.search([]):
+        for subscription in self.search([], order="recurring_next_date asc"):
+            subscription = subscription.with_company(subscription.company_id)
             if subscription.in_progress:
                 if (
-                    subscription.recurring_next_date == today
+                    subscription.recurring_next_date <= today
                     and subscription.sale_subscription_line_ids
                 ):
                     try:
@@ -150,11 +151,11 @@ class SaleSubscription(models.Model):
                     except Exception:
                         logger.exception("Error on subscription invoice generate")
                 if not subscription.recurring_rule_boundary:
-                    if subscription.date == today:
+                    if subscription.date <= today:
                         subscription.action_close_subscription()
 
             else:
-                if subscription.date_start == today:
+                if subscription.date_start <= today:
                     subscription.action_start_subscription()
                     subscription.generate_invoice()
 
