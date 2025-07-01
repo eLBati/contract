@@ -15,8 +15,4 @@ class SaleOrderLine(models.Model):
             "discount": self.discount,
             "price_subtotal": self.price_subtotal,
             "analytic_distribution": self.analytic_distribution
-            if self.analytic_distribution
-            else {self.project_id.analytic_account_id.id: 100}
-            if self.project_id.analytic_account_id
-            else False,
         }
